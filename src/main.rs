@@ -1,30 +1,29 @@
-use std::fs::File;
-use std::io::Read;
-
-fn process_file(file_name: &String) -> std::io::Result<String> {
-    let mut file = File::open(file_name)?;
-    let mut buffer = String::new();
-    file.read_to_string(&mut buffer)?;
-    drop(file);
-    return Ok(buffer);
-}
+mod utils;
 
 fn main() {
     let args = std::env::args().collect::<Vec<String>>();
+    let rom: Vec<u8>;
     if args.len() != 2 {
         eprintln!("Please provide a file.");
         std::process::exit(1);
     }
 
-    let file_contents = match process_file(&args[1]) {
-        Ok(file) => file,
+    match utils::process_file(&args[1]) {
+        Ok(file) => rom = file,
         Err(why) => {
             eprintln!("Error opening file '{}': {}", &args[1], why);
             std::process::exit(1);
         }
     };
+    drop(args);
 
-    print!("{}", file_contents);
+    for char in &rom {
+        if '\n' == *char as char {
+            println!("{} \t .", *char);
+        } else {
+            println!("{} \t {}", *char, *char as char);
+        }
+    }
 
     std::process::exit(0);
 }
