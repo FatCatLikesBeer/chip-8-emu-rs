@@ -27,10 +27,3 @@ fn main() {
 
     std::process::exit(0);
 }
-
-// TODO: Binary accepts arguments.
-// Argument is a file name
-// Open and verify file name
-// Store file name
-// TODO: Parse file by lines
-// TODO: Run some logic based on lines
