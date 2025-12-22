@@ -11,10 +11,19 @@ pub fn process_file(file_name: &String) -> std::io::Result<Vec<u8>> {
 }
 
 pub struct CPU {
-    pub v: [u8; 0xF],      // registers
-    pub i: u16,            // Address register
-    pub mem: [u8; 0x1000], // Memory
-    pub stk: u64,          // Stack
+    pub v: [u8; 0x10],         // registers
+    pub pc: u8,                // Program coutner
+    pub i: u16,                // Address register
+    pub stk: [u8; 0x10],       // Stack
+    pub sp: u8,                // Stack pointer
+    pub t_delay: u8,           // Delay Timer
+    pub t_sound: u8,           // Sound Timer
+    pub key: [u8; 0x10],       // Keypad
+    pub out: [[bool; 64]; 32], // Display
+    pub mem: [u8; 0x1000],     // Memory map:
+                               // 0x000 - 0x1FF - Chip 8 interpreter: contains font set
+                               // 0x050 - 0x0A0 - Built in 4x5 pixel fot sent (0-F)
+                               // 0x200 - 0xFFF - Program and Work RAM
 }
 
 // https://en.wikipedia.org/wiki/CHIP-8#Registers
