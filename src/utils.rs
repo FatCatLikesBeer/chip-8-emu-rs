@@ -9,3 +9,19 @@ pub fn process_file(file_name: &String) -> std::io::Result<Vec<u8>> {
     }
     return Ok(buffer);
 }
+
+pub struct Explore {
+    pub acc: i32,
+}
+
+impl Explore {
+    pub fn add(&mut self, val: i32) {
+        self.acc = self.acc + val;
+    }
+    pub fn shift(&mut self) {
+        self.acc = self.acc >> 1;
+    }
+    pub fn print(&self) {
+        println!("{}", self.acc);
+    }
+}
