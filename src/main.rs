@@ -1,7 +1,6 @@
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 
-mod display;
 mod utils;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -30,7 +29,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // }
 
     let sdl = sdl2::init()?;
-    let mut display = display::Display::new(&sdl)?;
+    let mut display = utils::Display::new(&sdl)?;
     let mut event_pump = sdl.event_pump()?;
     let mut collision: bool;
     let mut x: i32 = 0;
