@@ -4,29 +4,29 @@ use sdl2::keyboard::Keycode;
 mod utils;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // let args = std::env::args().collect::<Vec<String>>();
-    // let rom: Vec<u8>;
-    // if args.len() != 2 {
-    //     eprintln!("Please provide a file.");
-    //     std::process::exit(1);
-    // }
-    //
-    // match utils::process_file(&args[1]) {
-    //     Ok(file) => rom = file,
-    //     Err(why) => {
-    //         eprintln!("Error opening file '{}': {}", &args[1], why);
-    //         std::process::exit(1);
-    //     }
-    // };
-    // drop(args);
-    //
-    // for char in &rom {
-    //     if '\n' == *char as char {
-    //         println!("{} \t .", *char);
-    //     } else {
-    //         println!("{} \t {}", *char, *char as char);
-    //     }
-    // }
+    let args = std::env::args().collect::<Vec<String>>();
+    let rom: Vec<u8>;
+    if args.len() != 2 {
+        eprintln!("Please provide a file.");
+        std::process::exit(1);
+    }
+
+    match utils::process_file(&args[1]) {
+        Ok(file) => rom = file,
+        Err(why) => {
+            eprintln!("Error opening file '{}': {}", &args[1], why);
+            std::process::exit(1);
+        }
+    };
+    drop(args);
+
+    for char in &rom {
+        if '\n' == *char as char {
+            println!("{} \t .", *char);
+        } else {
+            println!("{} \t {}", *char, *char as char);
+        }
+    }
 
     let sdl = sdl2::init()?;
     let mut display = utils::Display::new(&sdl)?;
@@ -60,3 +60,5 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     std::process::exit(0);
 }
+
+// TODO: Implement some opcode logic?
