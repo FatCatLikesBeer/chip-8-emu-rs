@@ -4,8 +4,8 @@ use sdl2::keyboard::Keycode;
 mod utils;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let args = std::env::args().collect::<Vec<String>>();
     let rom: Vec<u8>;
+    let args = std::env::args().collect::<Vec<String>>();
     if args.len() != 2 {
         eprintln!("Please provide a file.");
         std::process::exit(1);
