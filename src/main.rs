@@ -4,36 +4,31 @@ use sdl2::keyboard::Keycode;
 mod utils;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let rom: Vec<u8>;
-    let args = std::env::args().collect::<Vec<String>>();
-    if args.len() != 2 {
-        eprintln!("Please provide a file.");
-        std::process::exit(1);
-    }
+    // let rom: Vec<u8>;
+    // let args = std::env::args().collect::<Vec<String>>();
+    // if args.len() != 2 {
+    //     eprintln!("Please provide a file.");
+    //     std::process::exit(1);
+    // }
+    //
+    // match utils::process_file(&args[1]) {
+    //     Ok(file) => rom = file,
+    //     Err(error) => {
+    //         eprintln!("Error opening file '{}': {}", &args[1], error);
+    //         std::process::exit(1);
+    //     }
+    // };
+    // drop(args);
+    // // None of the above is nessary when no file is being read
 
-    match utils::process_file(&args[1]) {
-        Ok(file) => rom = file,
-        Err(why) => {
-            eprintln!("Error opening file '{}': {}", &args[1], why);
-            std::process::exit(1);
-        }
-    };
-    drop(args);
-
-    for char in &rom {
-        if '\n' == *char as char {
-            println!("{} \t .", *char);
-        } else {
-            println!("{} \t {}", *char, *char as char);
-        }
-    }
-
+    // Init CPU & Display
+    let cpu: utils::CPU;
     let sdl = sdl2::init()?;
     let mut display = utils::Display::new(&sdl)?;
     let mut event_pump = sdl.event_pump()?;
-    let mut collision: bool;
     let mut x: i32 = 0;
     let mut y: i32 = 0;
+    let mut index: i8 = 0;
 
     'running: loop {
         // Exit stuff
@@ -50,15 +45,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
 
-        collision = display.set_pixel(x as usize, (y + 10) as usize, true);
+        display.set_pixel(x as usize, (y + 10) as usize, true);
+        index = (index + 1) % 64;
+        if index == 0 {
+            display.clear();
+        }
         y = (y + 1) % 10;
         x = (x + 1) % 64;
         display.draw();
-        println!("{}", collision);
         std::thread::sleep(std::time::Duration::from_millis(16));
     }
 
     std::process::exit(0);
 }
 
+// TODO: Integrate display into CPU
 // TODO: Implement some opcode logic?
