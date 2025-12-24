@@ -92,12 +92,14 @@ pub struct CPU {
 impl CPU {
     pub fn display_clear() {
         // 00E0
+        // TODO: Define function
     }
     pub fn sub_return() {
         // 00EE
+        // TODO: Define function
     }
     /// 1NNN
-    fn goto_address(mut self, left: u8, right: u8) {
+    fn goto_address(&mut self, left: u8, right: u8) {
         let address = ((left as u16) << 7) | right as u16;
         self.pc = address & 0x0FFF;
     }
@@ -105,109 +107,139 @@ impl CPU {
         // 2NNN
     }
     /// 3XNN
-    fn skip_eq_mem(mut self, left: u8, right: u8) {
+    fn skip_eq_mem(&mut self, left: u8, right: u8) {
         let index = (0x0F & left) as usize;
-        if index > 15 {
-            // ERROR
-        }
+        self.validate_index(index);
         if right == self.v[index] {
             self.pc += 1;
         }
     }
     /// 4XNN
-    fn skip_no_eq(mut self, left: u8, right: u8) {
+    fn skip_no_eq(&mut self, left: u8, right: u8) {
         let index = (0x0F & left) as usize;
-        if index > 15 {
-            // ERROR
-        }
+        self.validate_index(index);
         if right != self.v[index] {
             self.pc += 1;
         }
     }
     /// 5XY0
-    fn skip_eq_reg(mut self, left: u8, right: u8) {
+    fn skip_eq_reg(&mut self, left: u8, right: u8) {
         let l = 0x0F & left;
         let r = (0xF0 & right) >> 3;
         if l == r {
             self.pc += 1;
         }
     }
-    pub fn set_x_mem() {
-        // 6XNN
+    /// 6XNN
+    fn set_x_mem(&mut self, left: u8, right: u8) {
+        let index = (0x0F & left) as usize;
+        self.validate_index(index);
+        self.v[index] = right;
     }
     pub fn add_x_mem() {
         // 7XNN
+        // TODO: Define function
     }
     pub fn set_x_y() {
         // 8XY0
+        // TODO: Define function
     }
     pub fn set_x_or_y() {
         // 8XY1
+        // TODO: Define function
     }
     pub fn set_x_and_y() {
         // 8XY2
+        // TODO: Define function
     }
     pub fn set_x_xor_y() {
         // 8XY3
+        // TODO: Define function
     }
     pub fn set_x_add_y() {
         // 8XY4
+        // TODO: Define function
     }
     pub fn set_x_sub_y() {
         // 8XY5
+        // TODO: Define function
     }
     pub fn set_x_r_shift() {
         // 8XY6
+        // TODO: Define function
     }
     pub fn set_x_diff_x() {
         // 8XY7
+        // TODO: Define function
     }
     pub fn set_x_l_shift() {
         // 8XYE
+        // TODO: Define function
     }
     pub fn skip_x_not_y() {
         // 9XY0
+        // TODO: Define function
     }
     pub fn set_i_mem() {
         // ANNN
+        // TODO: Define function
     }
     pub fn jump_to_mem() {
         // BNNN
+        // TODO: Define function
     }
     pub fn set_x_rand() {
         // CXNN
+        // TODO: Define function
     }
     pub fn draw() {
         // DXYN
+        // TODO: Define function
     }
     pub fn skip_is_key() {
         // EX9E
+        // TODO: Define function
     }
     pub fn skip_is_not_key() {
         // EXA1
+        // TODO: Define function
     }
     pub fn set_x_delay() {
         // FX07
+        // TODO: Define function
     }
     pub fn set_delay_x() {
         // FX15
+        // TODO: Define function
     }
     pub fn set_sound_x() {
         // FX18
+        // TODO: Define function
     }
     pub fn set_i_add_x() {
         // FX1E
+        // TODO: Define function
     }
     pub fn set_i_sprt_adr() {
         // FX29
+        // TODO: Define function
     }
     pub fn parse_x_to_i() {
         // FX33
+        // TODO: Define function
     }
     pub fn reg_dump() {
         // FX55
+        // TODO: Define function
     }
     pub fn reg_fill() {
         // FX65
+        // TODO: Define function
+    }
+    fn validate_index(&self, index: usize) {
+        if index > 15 {
+            // WARN: Write some logic here
+            // TODO: Throw some error or something
+        }
     }
 }
