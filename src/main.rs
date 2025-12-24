@@ -4,7 +4,7 @@ use sdl2::keyboard::Keycode;
 mod utils;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // let rom: Vec<u8>;
+    let mut rom: Vec<u8> = vec![0];
     // let args = std::env::args().collect::<Vec<String>>();
     // if args.len() != 2 {
     //     eprintln!("Please provide a file.");
@@ -22,7 +22,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // // None of the above is nessary when no file is being read
 
     // Init CPU & Display
-    let cpu: utils::CPU;
+    let cpu: utils::CPU = utils::CPU::new(rom);
     let sdl = sdl2::init()?;
     let mut display = utils::Display::new(&sdl)?;
     let mut event_pump = sdl.event_pump()?;
@@ -61,3 +61,5 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 // TODO: Integrate display into CPU
 // TODO: Implement some opcode logic?
+// TODO: Create a step method
+// TODO: Method to load rom in CPU

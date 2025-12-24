@@ -73,28 +73,29 @@ pub fn process_file(file_name: &String) -> std::io::Result<Vec<u8>> {
 }
 
 pub struct CPU {
-    pub v: [u8; 0x10],         // registers
-    pub pc: u16,               // Program counter
-    pub i: u16,                // Address register
-    pub stk: [u8; 0x10],       // Stack
-    pub sp: u8,                // Stack pointer
-    pub t_delay: u8,           // Delay Timer
-    pub t_sound: u8,           // Sound Timer
-    pub key: [u8; 0x10],       // Keypad
-    pub out: [[bool; 64]; 32], // Display
-    pub mem: [u8; 0x1000],     // Memory map:
-                               // 0x000 - 0x1FF - Chip 8 interpreter: contains font set
-                               // 0x050 - 0x0A0 - Built in 4x5 pixel fot sent (0-F)
-                               // 0x200 - 0xFFF - Program and Work RAM
+    pub rom: Vec<u8>,
+    v: [u8; 0x10],         // registers
+    pc: u16,               // Program counter
+    i: u16,                // Address register
+    stk: [u8; 0x10],       // Stack
+    sp: u8,                // Stack pointer
+    t_delay: u8,           // Delay Timer
+    t_sound: u8,           // Sound Timer
+    key: [u8; 0x10],       // Keypad
+    out: [[bool; 64]; 32], // Display
+    mem: [u8; 0x1000],     // Memory map:
+                           // 0x000 - 0x1FF - Chip 8 interpreter: contains font set
+                           // 0x050 - 0x0A0 - Built in 4x5 pixel fot sent (0-F)
+                           // 0x200 - 0xFFF - Program and Work RAM
 }
 
 // https://en.wikipedia.org/wiki/CHIP-8#Registers
 impl CPU {
-    pub fn display_clear() {
+    fn display_clear() {
         // 00E0
         // TODO: Define function
     }
-    pub fn sub_return() {
+    fn sub_return() {
         // 00EE
         // TODO: Define function
     }
@@ -103,7 +104,7 @@ impl CPU {
         let address = ((left as u16) << 7) | right as u16;
         self.pc = address & 0x0FFF;
     }
-    pub fn sub_call() {
+    fn sub_call() {
         // 2NNN
     }
     /// 3XNN
@@ -136,110 +137,148 @@ impl CPU {
         self.validate_index(index);
         self.v[index] = right;
     }
-    pub fn add_x_mem() {
-        // 7XNN
-        // TODO: Define function
+    /// 7XNN
+    fn add_x_mem(&mut self, left: u8, right: u8) {
+        let index = (left as usize) << 7;
+        self.v[index] += right;
     }
-    pub fn set_x_y() {
-        // 8XY0
-        // TODO: Define function
+    /// 8XY0
+    fn set_x_y(&mut self, left: u8, right: u8) {
+        let (_, x) = self.split_byte(left);
+        let (y, _) = self.split_byte(right);
+        self.v[x as usize] = self.v[y as usize];
     }
-    pub fn set_x_or_y() {
-        // 8XY1
-        // TODO: Define function
+    /// 8XY1
+    fn set_x_or_y(&mut self, left: u8, right: u8) {
+        let (_, x) = self.split_byte(left);
+        let (y, _) = self.split_byte(right);
+        self.v[x as usize] |= self.v[y as usize];
     }
-    pub fn set_x_and_y() {
-        // 8XY2
-        // TODO: Define function
+    /// 8XY2
+    fn set_x_and_y(&mut self, left: u8, right: u8) {
+        let (_, x) = self.split_byte(left);
+        let (y, _) = self.split_byte(right);
+        self.v[x as usize] &= self.v[y as usize];
     }
-    pub fn set_x_xor_y() {
-        // 8XY3
-        // TODO: Define function
+    /// 8XY3
+    fn set_x_xor_y(&mut self, left: u8, right: u8) {
+        let (_, x) = self.split_byte(left);
+        let (y, _) = self.split_byte(right);
+        self.v[x as usize] ^= self.v[y as usize];
     }
-    pub fn set_x_add_y() {
-        // 8XY4
-        // TODO: Define function
+    // TODO: 8XY4 - 8XYE: manipulates v[F]
+    /// 8XY4
+    fn set_x_add_y(&mut self, left: u8, right: u8) {
+        let (_, x) = self.split_byte(left);
+        let (y, _) = self.split_byte(right);
+        self.v[x as usize] += self.v[y as usize];
     }
-    pub fn set_x_sub_y() {
-        // 8XY5
-        // TODO: Define function
+    /// 8XY5
+    fn set_x_sub_y(&mut self, left: u8, right: u8) {
+        let (_, x) = self.split_byte(left);
+        let (y, _) = self.split_byte(right);
+        self.v[x as usize] -= self.v[y as usize];
     }
-    pub fn set_x_r_shift() {
-        // 8XY6
-        // TODO: Define function
+    /// 8XY6
+    fn set_x_r_shift(&mut self, left: u8, _: u8) {
+        let (_, x) = self.split_byte(left);
+        self.v[0xf] = self.v[x as usize] & 0x01;
+        self.v[x as usize] >>= 1;
     }
-    pub fn set_x_diff_x() {
+    fn set_x_diff_x() {
         // 8XY7
         // TODO: Define function
     }
-    pub fn set_x_l_shift() {
+    fn set_x_l_shift() {
         // 8XYE
         // TODO: Define function
     }
-    pub fn skip_x_not_y() {
+    fn skip_x_not_y() {
         // 9XY0
         // TODO: Define function
     }
-    pub fn set_i_mem() {
+    fn set_i_mem() {
         // ANNN
         // TODO: Define function
     }
-    pub fn jump_to_mem() {
+    fn jump_to_mem() {
         // BNNN
         // TODO: Define function
     }
-    pub fn set_x_rand() {
+    fn set_x_rand() {
         // CXNN
         // TODO: Define function
     }
-    pub fn draw() {
+    fn draw() {
         // DXYN
         // TODO: Define function
     }
-    pub fn skip_is_key() {
+    fn skip_is_key() {
         // EX9E
         // TODO: Define function
     }
-    pub fn skip_is_not_key() {
+    fn skip_is_not_key() {
         // EXA1
         // TODO: Define function
     }
-    pub fn set_x_delay() {
+    fn set_x_delay() {
         // FX07
         // TODO: Define function
     }
-    pub fn set_delay_x() {
+    fn set_delay_x() {
         // FX15
         // TODO: Define function
     }
-    pub fn set_sound_x() {
+    fn set_sound_x() {
         // FX18
         // TODO: Define function
     }
-    pub fn set_i_add_x() {
+    fn set_i_add_x() {
         // FX1E
         // TODO: Define function
     }
-    pub fn set_i_sprt_adr() {
+    fn set_i_sprt_adr() {
         // FX29
         // TODO: Define function
     }
-    pub fn parse_x_to_i() {
+    fn parse_x_to_i() {
         // FX33
         // TODO: Define function
     }
-    pub fn reg_dump() {
+    fn reg_dump() {
         // FX55
         // TODO: Define function
     }
-    pub fn reg_fill() {
+    fn reg_fill() {
         // FX65
         // TODO: Define function
     }
     fn validate_index(&self, index: usize) {
-        if index > 15 {
-            // WARN: Write some logic here
-            // TODO: Throw some error or something
+        if index > 16 {
+            panic!("Index invalid -> larger than 15: {}", index);
         }
+    }
+    pub fn new(rom: Vec<u8>) -> CPU {
+        CPU {
+            rom: rom,
+            v: [0; 16],
+            pc: 0,
+            i: 0,
+            stk: [8; 0x10],
+            sp: 00,
+            t_delay: 0,
+            t_sound: 0,
+            key: [8; 0x10],
+            out: [[false; 64]; 32],
+            mem: [8; 0x1000],
+        }
+    }
+    pub fn test_function(&self) {
+        self.validate_index(88);
+    }
+    fn split_byte(&self, byte: u8) -> (u8, u8) {
+        let left = (byte & 0xf0) >> 3;
+        let right = byte & 0x0f;
+        return (left, right);
     }
 }
