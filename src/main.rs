@@ -59,7 +59,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     std::process::exit(0);
 }
 
-// TODO: Integrate display into CPU
+// TODO: I need to implement the hard stuff: delay timer, draw method, & key press interface
 // TODO: Implement some opcode logic?
+// TODO: Integrate display into CPU
 // TODO: Create a step method
 // TODO: Method to load rom in CPU

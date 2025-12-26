@@ -146,32 +146,32 @@ impl CPU {
     }
     /// 8XY0
     fn set_x_y(&mut self, left: u8, right: u8) {
-        let (_, x): (usize, usize) = self.split_byte(left);
-        let (y, _): (usize, usize) = self.split_byte(right);
+        let (_, x) = self.split_byte::<usize>(left);
+        let (y, _) = self.split_byte::<usize>(right);
         self.validate_index(x);
         self.validate_index(x);
         self.v[x] = self.v[y];
     }
     /// 8XY1
     fn set_x_or_y(&mut self, left: u8, right: u8) {
-        let (_, x): (usize, usize) = self.split_byte(left);
-        let (y, _): (usize, usize) = self.split_byte(right);
+        let (_, x) = self.split_byte::<usize>(left);
+        let (y, _) = self.split_byte::<usize>(right);
         self.validate_index(x);
         self.validate_index(y);
         self.v[x] |= self.v[y];
     }
     /// 8XY2
     fn set_x_and_y(&mut self, left: u8, right: u8) {
-        let (_, x): (usize, usize) = self.split_byte(left);
-        let (y, _): (usize, usize) = self.split_byte(right);
+        let (_, x) = self.split_byte::<usize>(left);
+        let (y, _) = self.split_byte::<usize>(right);
         self.validate_index(x);
         self.validate_index(y);
         self.v[x] &= self.v[y];
     }
     /// 8XY3
     fn set_x_xor_y(&mut self, left: u8, right: u8) {
-        let (_, x): (usize, usize) = self.split_byte(left);
-        let (y, _): (usize, usize) = self.split_byte(right);
+        let (_, x) = self.split_byte::<usize>(left);
+        let (y, _) = self.split_byte::<usize>(right);
         self.validate_index(x);
         self.validate_index(y);
         self.v[x] ^= self.v[y];
@@ -179,31 +179,31 @@ impl CPU {
     // TODO: 8XY4 - 8XYE: manipulates v[F]
     /// 8XY4
     fn set_x_add_y(&mut self, left: u8, right: u8) {
-        let (_, x) = self.split_byte(left);
-        let (y, _) = self.split_byte(right);
+        let (_, x) = self.split_byte::<usize>(left);
+        let (y, _) = self.split_byte::<usize>(right);
         self.validate_index(x);
         self.validate_index(y);
         self.v[x as usize] += self.v[y as usize];
     }
     /// 8XY5
     fn set_x_sub_y(&mut self, left: u8, right: u8) {
-        let (_, x) = self.split_byte(left);
-        let (y, _) = self.split_byte(right);
+        let (_, x) = self.split_byte::<usize>(left);
+        let (y, _) = self.split_byte::<usize>(right);
         self.validate_index(x);
         self.validate_index(y);
         self.v[x as usize] -= self.v[y as usize];
     }
     /// 8XY6
     fn set_x_r_shift(&mut self, left: u8, _: u8) {
-        let (_, x): (usize, usize) = self.split_byte(left);
+        let (_, x) = self.split_byte::<usize>(left);
         self.validate_index(x);
         self.v[0xf] = self.v[x] & 0x01;
         self.v[x] >>= 1;
     }
     /// 8XY7
     fn set_x_diff_x(&mut self, left: u8, right: u8) {
-        let (_, x) = self.split_byte(left);
-        let (y, _) = self.split_byte(right);
+        let (_, x) = self.split_byte::<usize>(left);
+        let (y, _) = self.split_byte::<usize>(right);
         self.validate_index(x);
         self.validate_index(y);
         self.v[x] -= self.v[y];
@@ -216,8 +216,8 @@ impl CPU {
     }
     /// 9XY0
     fn skip_x_not_y(&mut self, left: u8, right: u8) {
-        let (_, x) = self.split_byte(left);
-        let (y, _) = self.split_byte(right);
+        let (_, x) = self.split_byte::<usize>(left);
+        let (y, _) = self.split_byte::<usize>(right);
         self.validate_index(x);
         self.validate_index(y);
         if self.v[x] == self.v[y] {
@@ -226,49 +226,55 @@ impl CPU {
     }
     /// ANNN
     fn set_i_mem(&mut self, left: u8, right: u8) {
-        let (_, n1): (u8, u8) = self.split_byte(left);
-        let (n2, n3): (u8, u8) = self.split_byte(right);
+        let (_, n1) = self.split_byte::<u8>(left);
+        let (n2, n3) = self.split_byte::<u8>(right);
         self.i = self.smash_3_nib(n1, n2, n3)
     }
     /// BNNN
     fn jump_to_mem(&mut self, left: u8, right: u8) {
-        let (_, n1): (u8, u8) = self.split_byte(left);
-        let (n2, n3): (u8, u8) = self.split_byte(right);
+        let (_, n1) = self.split_byte::<u8>(left);
+        let (n2, n3) = self.split_byte::<u8>(right);
         self.pc = (self.v[0] as u16) + self.smash_3_nib(n1, n2, n3);
     }
     /// CXNN
     /// Vx = rand() & NN
     fn set_x_rand(&mut self, left: u8, right: u8) {
         let mut rng = rand::rng();
-        let quad: (u8, u8, u8, u8) = self.split_pair((left, right));
+        let quad = self.split_pair::<u8>((left, right));
         let nn = self.smash_2_nib(quad.2, quad.3);
         let rand: u8 = rng.random();
         self.v[quad.1 as usize] = rand & nn;
     }
     /// DXYN
     fn draw(&mut self, left: u8, right: u8) {
-        let q: (u8, u8, u8, u8) = self.split_pair((left, right));
+        let q = self.split_pair::<u8>((left, right));
         // self.draw(q1, q2, q3);
         // TODO: Define draw method
         // WARN: This function has not been defined
     }
     /// EX9E
     /// if (key() = vx)
-    fn skip_is_key(&mut self, left: u8, right: u8) {
-        let q: (u8, u8, u8, u8) = self.split_pair((left, right));
+    fn skip_if_key(&mut self, left: u8, right: u8) {
+        let q = self.split_pair::<u8>((left, right));
         // Skips the next instruction if the key stored in VX(only consider the lowest nibble)
         // is pressed (usually the next instruction is a jump to skip a code block)
-        // TODO: What the hell is pressed?
+        // TODO: What the hell is 'pressed'?
         // TODO: Define draw method
         // WARN: This function has not been defined
     }
-    fn skip_is_not_key(&mut self, left: u8, right: u8) {
-        // EXA1
-        // TODO: Define function
+    /// EXA1
+    /// if (key() != Vx)
+    fn skip_if_not_key(&mut self, left: u8, right: u8) {
+        let g = self.split_pair::<u8>((left, right));
+        // self.v[g.1] != key_pressed?
+        // TODO: What the hell is 'pressed'?
+        // TODO: Define draw method
+        // WARN: This function has not been defined
     }
+    /// FX07
+    /// vx = get_delay()
     fn set_x_delay(&mut self, left: u8, right: u8) {
-        // FX07
-        // TODO: Define function
+        let g = self.split_pair::<u8>((left, right));
     }
     fn set_delay_x(&mut self, left: u8, right: u8) {
         // FX15
